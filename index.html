@@ -233,7 +233,29 @@ footer {
     </form>
     <ul id="noteList"></ul>
   </section>
+<section class="panel" id="backup" style="margin-top:16px">
+  <h2>💾 Biztonsági mentés</h2>
+  <p class="hint">
+    Időnként töltsd le a naplód másolatát,
+    hogy megőrizhesd a feljegyzéseidet.
+  </p>
 
+  <button class="add" type="button" id="backupButton">
+    💾 Mentés letöltése
+  </button>
+
+  <div style="height:10px"></div>
+
+  <label class="hint" for="restoreFile">
+    Korábban elmentett fájl visszaállítása
+  </label>
+  <input id="restoreFile" type="file" accept=".json,application/json">
+
+  <p class="hint">
+    A visszaállítás lecseréli a jelenlegi bejegyzéseket.
+    Csak a saját naplómentésedet válaszd ki.
+  </p>
+</section>
   <footer>🌷 Szeretettel, a saját kis naplód 🌷</footer>
 </main>
 
@@ -389,6 +411,69 @@ render("shopping","shoppingList",{checkable:true});
 render("home","homeList");
 render("deadlines","deadlineList",{checkable:true});
 render("notes","noteList");
+  function backupData() {
+  const backup = {
+    version: 1,
+    savedAt: new Date().toISOString(),
+    data: data
+  };
+
+  const blob = new Blob(
+    [JSON.stringify(backup, null, 2)],
+    { type: "application/json" }
+  );
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "mimi-viragos-naplo-mentes.json";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function restoreData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function() {
+    try {
+      const backup = JSON.parse(reader.result);
+      const restored = backup.data;
+
+      const keys = ["tasks", "shopping", "home", "deadlines", "notes"];
+
+      if (!restored || !keys.every(
+        key => Array.isArray(restored[key])
+      )) {
+        throw new Error("Érvénytelen mentés");
+      }
+
+      if (!confirm(
+        "A visszaállítás lecseréli a jelenlegi naplóbejegyzéseket. Folytatod?"
+      )) return;
+
+      data = restored;
+      save();
+      render("tasks", "taskList", {checkable:true});
+      render("shopping", "shoppingList", {checkable:true});
+      render("home", "homeList");
+      render("deadlines", "deadlineList", {checkable:true});
+      render("notes", "noteList");
+
+      alert("A napló mentését sikeresen visszaállítottuk! 🌷");
+    } catch (error) {
+      alert("Ezt a fájlt nem sikerült visszaállítani.");
+    } finally {
+      event.target.value = "";
+    }
+  };
+
+  reader.readAsText(file);
+}
+$("backupButton").addEventListener("click", backupData);
+$("restoreFile").addEventListener("change", restoreData);
 </script>
 </body>
 </html>
