@@ -1,0 +1,394 @@
+
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#fff1f7">
+<title>Virágos naplóm 🌷</title>
+<style>
+:root {
+  --pink:#d982a5;
+  --dark:#79536a;
+  --bg:#fff5f8;
+  --white:#ffffff;
+  --border:#f2dce6;
+  --green:#799d88;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(150deg,#fff5f8,#f7f0ff);
+  color:#654c5b;
+  min-height:100vh;
+}
+header {
+  text-align:center;
+  padding:28px 16px 20px;
+  background:#ffffffb8;
+  border-bottom:1px solid var(--border);
+}
+.flower { font-size:36px; }
+h1 {
+  font-family:Georgia,serif;
+  color:#b96589;
+  font-size:29px;
+  margin:8px 0;
+}
+header p { margin:5px 0; font-size:14px; }
+main { max-width:650px; margin:auto; padding:16px; }
+.today {
+  background:white;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:15px;
+  margin-bottom:15px;
+  text-align:center;
+  box-shadow:0 4px 15px #bd779015;
+}
+nav {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:8px;
+  margin-bottom:16px;
+}
+nav button {
+  border:1px solid var(--border);
+  border-radius:13px;
+  padding:12px 4px;
+  background:white;
+  color:var(--dark);
+  font-size:13px;
+  cursor:pointer;
+}
+nav button.active {
+  background:#d982a5;
+  color:white;
+  border-color:#d982a5;
+}
+.panel {
+  background:white;
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:19px;
+  box-shadow:0 5px 20px #bd779012;
+}
+h2 {
+  font-family:Georgia,serif;
+  font-size:23px;
+  color:#b96589;
+  margin:0 0 8px;
+}
+.hint { font-size:13px; color:#987e8d; line-height:1.5; }
+form { display:grid; gap:10px; margin:18px 0; }
+input,textarea,select {
+  width:100%;
+  padding:13px;
+  border:1px solid var(--border);
+  border-radius:11px;
+  font:inherit;
+  color:#654c5b;
+  background:#fffafd;
+}
+textarea { resize:vertical; min-height:100px; }
+button { font-family:inherit; }
+.add {
+  background:#d982a5;
+  color:white;
+  border:0;
+  padding:13px;
+  border-radius:12px;
+  font-size:15px;
+  cursor:pointer;
+}
+ul { list-style:none; padding:0; margin:0; }
+.entry {
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  padding:13px 0;
+  border-bottom:1px solid #f6e8ef;
+  overflow-wrap:anywhere;
+}
+.entry:last-child { border-bottom:0; }
+.entry input[type=checkbox] {
+  width:20px;
+  height:20px;
+  flex-shrink:0;
+  accent-color:#d982a5;
+  margin-top:2px;
+}
+.entry-content { flex:1; min-width:0; }
+.entry-content small {
+  display:block;
+  margin-top:5px;
+  color:#a28b99;
+  font-size:12px;
+}
+.done { text-decoration:line-through; opacity:.55; }
+.delete {
+  border:0;
+  background:#fff0f5;
+  color:#b96589;
+  border-radius:9px;
+  padding:7px 9px;
+  cursor:pointer;
+}
+.empty {
+  color:#aa92a0;
+  text-align:center;
+  padding:22px 5px;
+  font-size:14px;
+}
+.note {
+  background:#fff9fc;
+  padding:12px;
+  border-radius:12px;
+  margin:10px 0;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+}
+footer {
+  text-align:center;
+  padding:25px 12px;
+  color:#ad8499;
+  font-size:13px;
+}
+[hidden] { display:none !important; }
+</style>
+</head>
+<body>
+<header>
+  <div class="flower">🌷 🌸 🌷</div>
+  <h1>Virágos naplóm</h1>
+  <p>Egy kis hely minden fontos dolognak ♡</p>
+</header>
+
+<main>
+  <div class="today">
+    <div>🌼 <strong id="today"></strong> 🌼</div>
+    <p class="hint">Lépésről lépésre, a saját tempódban.</p>
+  </div>
+
+  <nav>
+    <button class="active" data-tab="tasks">🌸 Mai napom</button>
+    <button data-tab="shopping">🛍️ Vásárlás</button>
+    <button data-tab="home">🏡 Háztartás</button>
+    <button data-tab="deadlines">📅 Határidők</button>
+    <button data-tab="notes">💌 Jegyzetek</button>
+  </nav>
+
+  <section class="panel" id="tasks">
+    <h2>🌸 Mai napom</h2>
+    <p class="hint">Írd fel a teendőidet, és pipáld ki, ha elkészültél!</p>
+    <form id="taskForm">
+      <input id="taskText" placeholder="Mit szeretnél ma elintézni?" required>
+      <button class="add">＋ Teendő hozzáadása</button>
+    </form>
+    <ul id="taskList"></ul>
+  </section>
+
+  <section class="panel" id="shopping" hidden>
+    <h2>🛍️ Mit szeretnék venni?</h2>
+    <p class="hint">Gyűjtsd ide a következő bevásárlásodhoz szükséges dolgokat.</p>
+    <form id="shoppingForm">
+      <input id="shoppingText" placeholder="Például: mosószer" required>
+      <button class="add">＋ Hozzáadás a listához</button>
+    </form>
+    <ul id="shoppingList"></ul>
+  </section>
+
+  <section class="panel" id="home" hidden>
+    <h2>🏡 Háztartási napló</h2>
+    <p class="hint">Jegyezd fel, mikor végeztél el egy házimunkát.</p>
+    <form id="homeForm">
+      <input id="homeText" placeholder="Például: ágyneműmosás" required>
+      <label class="hint" for="homeDate">Mikor végezted el?</label>
+      <input id="homeDate" type="date" required>
+      <button class="add">＋ Esemény rögzítése</button>
+    </form>
+    <ul id="homeList"></ul>
+  </section>
+
+  <section class="panel" id="deadlines" hidden>
+    <h2>📅 Fontos határidők</h2>
+    <p class="hint">Számlák, időpontok és minden, amire emlékezni szeretnél.</p>
+    <form id="deadlineForm">
+      <input id="deadlineText" placeholder="Mi a teendő?" required>
+      <label class="hint" for="deadlineDate">Határidő dátuma</label>
+      <input id="deadlineDate" type="date" required>
+      <button class="add">＋ Határidő hozzáadása</button>
+    </form>
+    <ul id="deadlineList"></ul>
+  </section>
+
+  <section class="panel" id="notes" hidden>
+    <h2>💌 Saját jegyzeteim</h2>
+    <p class="hint">Ötletek, gondolatok és apró emlékeztetők.</p>
+    <form id="noteForm">
+      <input id="noteTitle" placeholder="A jegyzet címe" required>
+      <textarea id="noteText" placeholder="Ide írhatod a gondolataidat..." required></textarea>
+      <button class="add">＋ Jegyzet mentése</button>
+    </form>
+    <ul id="noteList"></ul>
+  </section>
+
+  <footer>🌷 Szeretettel, a saját kis naplód 🌷</footer>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const KEY = "mimiViragosNaploV1";
+let data = {};
+try {
+  data = JSON.parse(localStorage.getItem(KEY)) || {};
+} catch (e) {
+  data = {};
+}
+["tasks","shopping","home","deadlines","notes"].forEach(k => {
+  if (!Array.isArray(data[k])) data[k] = [];
+});
+
+function save() {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(data));
+  } catch (e) {
+    alert("A mentés nem sikerült. Ellenőrizd a böngésző tárhelyét.");
+  }
+}
+
+function dateText(value) {
+  if (!value) return "";
+  const parts = value.split("-");
+  return parts.length === 3 ? `${parts[2]}.${parts[1]}.${parts[0]}.` : value;
+}
+
+$("today").textContent = new Date().toLocaleDateString("hu-HU", {
+  year:"numeric", month:"long", day:"numeric", weekday:"long"
+});
+$("homeDate").value = new Date().toLocaleDateString("sv-SE");
+
+document.querySelectorAll("[data-tab]").forEach(button => {
+  button.addEventListener("click", () => {
+    document.querySelectorAll("[data-tab]").forEach(b =>
+      b.classList.toggle("active", b === button)
+    );
+    ["tasks","shopping","home","deadlines","notes"].forEach(id =>
+      $(id).hidden = id !== button.dataset.tab
+    );
+  });
+});
+
+function render(key, listId, options = {}) {
+  const list = $(listId);
+  list.replaceChildren();
+
+  if (!data[key].length) {
+    const li = document.createElement("li");
+    li.className = "empty";
+    li.textContent = options.empty || "Még nincs itt semmi. 🌸";
+    list.append(li);
+    return;
+  }
+
+  const entries = data[key].map((item, index) => ({item,index}));
+  if (key === "deadlines" || key === "home") {
+    entries.sort((a,b) => (b.item.date || "").localeCompare(a.item.date || ""));
+  }
+
+  entries.forEach(({item,index}) => {
+    const li = document.createElement("li");
+    li.className = "entry";
+
+    if (options.checkable) {
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = !!item.done;
+      checkbox.setAttribute("aria-label", "Elkészült");
+      checkbox.addEventListener("change", () => {
+        data[key][index].done = checkbox.checked;
+        save();
+        render(key,listId,options);
+      });
+      li.append(checkbox);
+    }
+
+    const content = document.createElement("div");
+    content.className = "entry-content" + (item.done ? " done" : "");
+
+    const title = document.createElement("div");
+    title.textContent = item.title;
+    content.append(title);
+
+    if (item.date) {
+      const small = document.createElement("small");
+      small.textContent = (key === "home" ? "Elvégezve: " : "Dátum: ") + dateText(item.date);
+      content.append(small);
+    }
+
+    if (item.body) {
+      const body = document.createElement("div");
+      body.className = "note";
+      body.textContent = item.body;
+      content.append(body);
+    }
+
+    li.append(content);
+
+    const del = document.createElement("button");
+    del.className = "delete";
+    del.textContent = "Törlés";
+    del.setAttribute("aria-label", item.title + " törlése");
+    del.addEventListener("click", () => {
+      if (!confirm("Biztosan törlöd ezt a bejegyzést?")) return;
+      data[key].splice(index,1);
+      save();
+      render(key,listId,options);
+    });
+    li.append(del);
+    list.append(li);
+  });
+}
+
+function addForm(formId, key, getItem, listId, options) {
+  $(formId).addEventListener("submit", event => {
+    event.preventDefault();
+    const item = getItem();
+    if (!item || !item.title.trim()) return;
+    data[key].push(item);
+    save();
+    render(key,listId,options);
+    $(formId).reset();
+    if (key === "home") $("homeDate").value = new Date().toLocaleDateString("sv-SE");
+  });
+}
+
+addForm("taskForm","tasks",() => ({
+  title:$("taskText").value.trim(), done:false
+}),"taskList",{checkable:true});
+
+addForm("shoppingForm","shopping",() => ({
+  title:$("shoppingText").value.trim(), done:false
+}),"shoppingList",{checkable:true});
+
+addForm("homeForm","home",() => ({
+  title:$("homeText").value.trim(), date:$("homeDate").value
+}),"homeList");
+
+addForm("deadlineForm","deadlines",() => ({
+  title:$("deadlineText").value.trim(), date:$("deadlineDate").value, done:false
+}),"deadlineList",{checkable:true});
+
+addForm("noteForm","notes",() => ({
+  title:$("noteTitle").value.trim(), body:$("noteText").value.trim()
+}),"noteList");
+
+render("tasks","taskList",{checkable:true});
+render("shopping","shoppingList",{checkable:true});
+render("home","homeList");
+render("deadlines","deadlineList",{checkable:true});
+render("notes","noteList");
+</script>
+</body>
+</html>
